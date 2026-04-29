@@ -57,7 +57,7 @@ PRS_cal_pipeline/
 │   ├── Utils/
 │   │   ├── KeyMapReplacer.py                # Join two files on a key column
 │   │   ├── wcut.py                          # Select columns by name or index
-│   │   ├── Residuals.R                      # Regress PRS on PCs, extract residuals
+│   │   ├── Residuals_YS.R                      # Regress PRS on PCs, extract residuals
 │   │   ├── Scale.R                          # Normalize a column (z-score)
 │   │   └── Cstatic_R2_GlmRegression.R       # AUC, OR, incremental R², Nagelkerke R², Liability R²
 │   └── xgb/
@@ -251,7 +251,7 @@ Rscript Scripts/prs/05.combinechr.R \
 
 Example `$pheno` format:
 ```
-IID        Has_cad   age   inferred_gender   genotyping_array   PC1      PC2    ...
+IID        CAD   age   inferred_gender   genotyping_array   PC1      PC2    ...
 SAMPLE1    1         55    M                 GSA                0.012   -0.003  ...
 SAMPLE2    0         62    F                 GSA               -0.008    0.011  ...
 ```
@@ -426,7 +426,7 @@ The XGBoost stage learns the optimal nonlinear combination of multiple PRS featu
 **Input table format** (whitespace-separated, header required, PRS columns ordered low → high C-statistic):
 
 ```
-IID       PRS_1    PRS_2    PRS_3    Has_cad
+IID       PRS_1    PRS_2    PRS_3    CAD
 SAMPLE1   0.412   -0.031    1.203    1
 SAMPLE2  -0.887    0.221    0.004    0
 ```

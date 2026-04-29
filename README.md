@@ -229,7 +229,7 @@ cat chr*.sscore.gz > all_chr.sscore.gz
 # Step 5.2: sum across chromosomes
 Rscript Scripts/prs/05.combinechr.R \
   -i all_chr.sscore.gz \
-  -o output/combined_PRS.txt \
+  -o score/sscore.txt \
   --col effect_weight_SUM
 ```
 
@@ -254,7 +254,7 @@ Rscript Scripts/prs/05.combinechr.R \
 ### 1. Merge PRS with phenotype
 
 ```bash
-zcat score/sscore.gz | \
+cat score/sscore | \
   sed 's/#IID/IID/g' | \
   python Scripts/Utils/KeyMapReplacer.py -k1 -a NA -p<(cat $pheno) -x | \
   sed 's/effect_weight_SUM/PRS/g' | \

@@ -19,7 +19,7 @@ From genotype data to locally optimized PRS and performance evaluation.
 
 ## Overview
 
-This pipeline takes genotype data and Polygenic Risk Scores (PRS) effect sizes as input, computes per-individual PRS, evaluates their performance, and combines multiple PRS into an optimized prediction model using XGBoost.
+This pipeline takes genotype data and Polygenic Risk Scores (PRS) effect sizes as input, computes per-individual PRS, evaluates their performance, and combines multiple PRS into an locally optimized prediction model using XGBoost.
 
 The pipeline is organized into three steps:
 
@@ -29,7 +29,6 @@ The pipeline is organized into three steps:
 
 **Key design choices:**
 
-- **SUM not AVG scoring**: per-chromosome scores are summed to avoid biasing cross-chromosome aggregation
 - **Imbalance-aware XGBoost**: `scale_pos_weight` auto-set from class counts; PR-AUC used as the primary tuning criterion
 - **Incremental feature inclusion**: XGBoost models trained with PRS added sequentially from lowest to highest C-statistic (ranked in Step 2), making the performance gain per feature directly observable
 - **Stratified cross-validation**: folds preserve class proportions, safe for highly imbalanced disease datasets

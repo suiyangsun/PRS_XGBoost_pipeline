@@ -244,7 +244,7 @@ Full example scripts provided in [`workflow/step1.UKB.score.sh`](https://github.
 ## Step 2: PRS Processing and Evaluation
 
 **Input:**
-- `sscore.txt`: combined PRS file from Step 5
+- `sscore.txt`: combined PRS file from Step 1.5
 - `$pheno`: phenotype and covariate file (tab-separated, first column must be named `IID`)
 
 Example `$pheno` format:

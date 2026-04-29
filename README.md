@@ -272,8 +272,6 @@ cat score/sscore.txt | \
 
 ### 2.2. Residualize PRS by PCs
 
-`Scripts/Utils/Residuals_YS.R`
-
 Regresses PRS on top PCs and extracts residuals to remove population stratification:
 
 ```bash
@@ -284,8 +282,8 @@ Rscript Scripts/Utils/Residuals_YS.R \
 
 | Option | Description |
 |---|---|
-| `-f` | Regression formula |
-| `-t` | Output column name for residuals |
+| `-f` | Regression formula (required) |
+| `-t` | Output column name for residuals (required) |
 
 ---
 

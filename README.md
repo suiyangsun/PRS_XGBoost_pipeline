@@ -97,7 +97,7 @@ install.packages(c("docopt", "data.table", "xgboost", "glmnet"))
 
 ### Weight file format
 
-All weight files must have the following columns (see `example/example.weight.txt`):
+All weight files must have the following columns (see [`example/example.weight.txt`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/example/example.weight.txt)):
 
 ```
 SNP             Chr   Pos       effect_allele   other_allele   effect_weight

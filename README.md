@@ -13,6 +13,7 @@ This design enables:
 - identification of diminishing returns
 - comparison with best single PRS
 
+
 ![Pipeline Overview](docs/pipeline_overview.png)
 
 ---
@@ -432,6 +433,13 @@ cat score/sscore.txt | \
 
 PRS features are ranked **using the training set only** based on their individual C-statistic to avoid data leakage. This ranking is then fixed and applied to both training and test sets.
 Early stopping is performed using validation folds within cross-validation and does not use the held-out test set.
+
+### Data Leakage Prevention
+
+- PRS ranking is performed using the training set only
+- Hyperparameter tuning uses cross-validation within the training set
+- The test set is strictly held out and used only for final evaluation
+
 
 **Input**: Training set and test set with the following format (whitespace-separated, header required):
 

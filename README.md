@@ -83,7 +83,6 @@ PRS_cal_pipeline/
 | Tool | Purpose |
 |---|---|
 | `plink2` | PRS calculation, variant filtering |
-| `bgenix` / `qctool` | Extracting variants from BGEN files |
 | `Python >= 3.7` | Utility scripts |
 | `R >= 4.0` | Scoring, regression, XGBoost |
 
@@ -91,14 +90,6 @@ PRS_cal_pipeline/
 
 ```r
 install.packages(c("docopt", "data.table", "xgboost", "glmnet"))
-```
-
-### Conda environment (for XGBoost steps)
-
-```bash
-conda activate /path/to/your/conda/xgboost
-# or create from env file:
-conda env create -f envs/xgboost_env.yml
 ```
 
 ---

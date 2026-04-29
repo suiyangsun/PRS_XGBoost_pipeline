@@ -238,7 +238,7 @@ Rscript Scripts/prs/05.combinechr.R \
 
 **Note**: each individual's PRS is the sum of per-chromosome scores. The `--col` option should match the column name produced by Step 4 (`effect_weight_SUM` by default).
 
-Full example scripts provided in [`workflow/UKB.score.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/workflow/step1.UKB.score.sh) and [`workflow/MGB.score.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/workflow/step1.UKB.score.sh).
+Full example scripts provided in [`workflow/step1.UKB.score.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/workflow/step1.UKB.score.sh) and [`workflow/step1.UKB.score.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/workflow/step1.UKB.score.sh).
 
 ---
 

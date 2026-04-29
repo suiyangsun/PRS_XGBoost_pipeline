@@ -173,6 +173,19 @@ bash Scripts/prs/02.setID.sh <plink2> <pfile_prefix> <output_prefix>
 
 Reformats IDs to `CHR:POS:A1:A2` with A1/A2 **alphabetically ordered**, matching the weight file SNP column.
 
+```bash
+bash Scripts/prs/03.updateID.sh <plink2> <pfile_prefix> <update_file> <output_prefix>
+```
+
+| Argument | Description |
+|---|---|
+| `<plink2>` | Path to plink2 executable |
+| `<pfile_prefix>` | Input PLINK2 file prefix `(expects .pgen, .pvar, .psam)` |
+| `<update_file>` | Two-column file mapping old IDs to new IDs `(oldID newID)` |
+| `<output_prefix>` | Output prefix |
+
+**Note**: the script checks that all three PLINK2 input files and the update file exist before running. The update file must have at least 2 columns (oldID newID), otherwise the script exits with an error.
+
 ---
 
 ### 4. Calculate PRS

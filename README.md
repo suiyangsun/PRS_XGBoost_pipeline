@@ -190,15 +190,28 @@ bash Scripts/prs/03.updateID.sh <plink2> <pfile_prefix> <update_file> <output_pr
 
 ### 4. Calculate PRS
 
+Calculates PRS per chromosome using plink2 `--score`. Uses `scoresums` (sum) rather than the plink2 default (average) — see note below.
+
 `Scripts/prs/04.calculate.score.sh`
 
-Uses plink2 `--score` with the following key flags:
+```bash
+bash Scripts/prs/04.calculate.score.sh <plink2> <pfile_prefix> <score_file> <output_prefix> [options]
+```
 
-```
---score $weight_file 1 4 header-read list-variants ignore-dup-ids \
-  cols='sid,nallele,dosagesum,scoresums'
---score-col-nums $col_num
-```
+| Argument | Description |
+|---|---|
+| `<plink2>` | Path to plink2 executable |
+| `<pfile_prefix>` | Input PLINK2 file prefix (expects `.pgen`, `.pvar`, `.psam`) |
+| `<score_file>` | Weight file (see weight file format above) |
+| `<output_prefix>` | Output prefix |
+
+| Option | Description | Default |
+|---|---|---|
+| `--snp-col INT` | Column number of SNP ID in weight file | `1` |
+| `--weight-col INT` | Column number of effect allele in weight file | `4` |
+| `--score-cols STR` | Column(s) of effect weights, single (`6`) or range (`6-10`) | `6` |
+| `--extract FILE` | Optional: extract a subset of variants | — |
+| `--remove FILE` | Optional: remove a subset of samples | — |
 
 > **Note on SUM vs AVG**: this pipeline uses `scoresums` (sum) rather than the plink2 default (average). When combining per-chromosome scores, summing is more appropriate because the denominator differs across chromosomes. With proper QC, SUM and AVG are effectively equivalent, but SUM avoids an arbitrary per-chromosome normalization artifact. See [this discussion](https://groups.google.com/g/prsice/c/hy-C66uo8ok?pli=1) for background.
 

@@ -14,9 +14,6 @@ From genotype data to locally optimized PRS and performance evaluation.
 4. [Step 1: PRS Calculation (PLINK)](#step-1-prs-calculation-plink)
 5. [Step 2: PRS Processing and Evaluation](#step-2-prs-processing-and-evaluation)
 6. [Step 3: XGBoost Integration](#step-3-xgboost-integration)
-7. [Input / Output Formats](#input--output-formats)
-8. [Example End-to-End Runs](#example-end-to-end-runs)
-9. [Notes on Reproducibility](#notes-on-reproducibility)
 
 ---
 

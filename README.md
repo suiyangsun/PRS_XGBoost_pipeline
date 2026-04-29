@@ -46,8 +46,8 @@ PRS_XGBoost_pipeline/
 ├── docs/
 │   └── pipeline_overview.png                # Pipeline diagram
 │   └── 01_PRS_Calculation.md                # Step 1: PRS calculation usage and examples
-│   └── 01_PRS_Calculation.md                # Step 2: PRS processing and performance evaluation
-│   └── 01_PRS_Calculation.md                # Step 3: XGBoost hyperparameter tuning, incremental training, and scoring
+│   └── 02_PRS_Processing.md                 # Step 2: PRS processing and performance evaluation
+│   └── 03_XGBoost.md                        # Step 3: XGBoost hyperparameter tuning, incremental training, and scoring
 ├── Scripts/
 │   ├── prs/
 │   │   ├── 01.extract.bgen.sh               # Extract SNPs (supports UKB and MGB)

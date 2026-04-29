@@ -114,7 +114,7 @@ SNP             Chr   Pos       effect_allele   other_allele   effect_weight
 
 ---
 
-### 1. Extract SNPs
+### 1.1. Extract SNPs
 
 Extracts only the SNPs present in the weight file from the full genotype data, dramatically reducing compute time especially when calculating multiple scores from the same genotype data.
 
@@ -147,7 +147,7 @@ bash Scripts/prs/01.extract.bgen.sh $plink $bgen $sample $bedfile $out ref-first
 
 ---
 
-### 2. Set variant ID
+### 1.2. Set variant ID
 
 Sets variant IDs to the intermediate format `chr@:#:ref:alt`。
 
@@ -167,7 +167,7 @@ bash Scripts/prs/02.setID.sh <plink2> <pfile_prefix> <output_prefix>
 
 ---
 
-### 3. Update variant ID
+### 1.3. Update variant ID
 
 Reformats IDs to `CHR:POS:A1:A2` with A1/A2 **alphabetically ordered**, matching the weight file SNP column.
 
@@ -188,7 +188,7 @@ bash Scripts/prs/03.updateID.sh <plink2> <pfile_prefix> <update_file> <output_pr
 
 ---
 
-### 4. Calculate PRS
+### 1.4. Calculate PRS
 
 Calculates PRS per chromosome using plink2 `--score`. Uses `scoresums` (sum) rather than the plink2 default (average) — see note below.
 
@@ -217,16 +217,16 @@ bash Scripts/prs/04.calculate.score.sh <plink2> <pfile_prefix> <score_file> <out
 
 ---
 
-### 5. Combine chromosomes
+### 1.5. Combine chromosomes
 
 Sums PRS across all chromosomes. First concatenate all per-chromosome `.sscore` files, then pass the combined file to this script.
 
 `Scripts/prs/05.combinechr.R`
 ```bash
-# Step 5.1: concatenate all per-chromosome score files
+# Step 1.5.1: concatenate all per-chromosome score files
 cat chr*.sscore.gz > all_chr.sscore.gz
 
-# Step 5.2: sum across chromosomes
+# Step 1.5.2: sum across chromosomes
 Rscript Scripts/prs/05.combinechr.R \
   -i all_chr.sscore.gz \
   -o score/sscore.txt \
@@ -245,32 +245,39 @@ Rscript Scripts/prs/05.combinechr.R \
 
 ## Step 2: PRS Processing and Evaluation
 
-**Input**: Raw PRS + Phenotype & Covariates (age, sex, PCs, etc.)
+**Input:**
+- `sscore.txt`: combined PRS file from Step 5
+- `$pheno`: phenotype and covariate file (tab-separated, first column must be named `IID`)
 
-**Output**: Performance metrics for each PRS (C-statistic, OR, R², etc.) + PRS ranking (low → high) saved as `prs_ranking.txt` for use in Step 3
+Example `$pheno` format:
+```
+IID        Has_cad   age   inferred_gender   genotyping_array   PC1      PC2    ...
+SAMPLE1    1         55    M                 GSA                0.012   -0.003  ...
+SAMPLE2    0         62    F                 GSA               -0.008    0.011  ...
+```
+
+**Output:** Performance metrics for each PRS (C-statistic, OR, R², etc.) + PRS ranking (low → high) saved as `prs_ranking.txt` for use in Step 3
 
 ---
 
-### 1. Merge PRS with phenotype
+### 2.1. Merge PRS with phenotype
 
 ```bash
-cat score/sscore | \
-  sed 's/#IID/IID/g' | \
+cat score/sscore.txt | \
   python Scripts/Utils/KeyMapReplacer.py -k1 -a NA -p<(cat $pheno) -x | \
-  sed 's/effect_weight_SUM/PRS/g' | \
   python Scripts/Utils/wcut.py -t 'IID,PRS,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10'
 ```
 
 ---
 
-### 2. Residualize PRS by PCs
+### 2.2. Residualize PRS by PCs
 
-`Scripts/Utils/Residuals.R`
+`Scripts/Utils/Residuals_YS.R`
 
 Regresses PRS on top PCs and extracts residuals to remove population stratification:
 
 ```bash
-Rscript Scripts/Utils/Residuals.R \
+Rscript Scripts/Utils/Residuals_YS.R \
   -f 'PRS~PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10' \
   -t adjPRS
 ```
@@ -282,7 +289,7 @@ Rscript Scripts/Utils/Residuals.R \
 
 ---
 
-### 3. Normalize PRS
+### 2.3. Normalize PRS
 
 `Scripts/Utils/Scale.R`
 
@@ -299,34 +306,61 @@ Rscript Scripts/Utils/Scale.R -c adjPRS -t adjNormPRS
 
 ---
 
-### 4. Evaluate PRS performance
+### 2.4. Evaluate PRS performance
 
 `Scripts/Utils/Cstatic_R2_GlmRegression.R`
 
-Fits full and null models and computes performance metrics:
+Fits full and null models and computes performance metrics including AUC, Delta C-statistic (with DeLong test), Nagelkerke R², and Liability R²:
 
 ```bash
-name="CAD"        # phenotype name
+name="CAD"
 link="binomial"   # gaussian for continuous phenotype, binomial for binary phenotype
 
 full_model="$name~adjNormPRS+age+inferred_gender+genotyping_array+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 null_model="$name~age+inferred_gender+genotyping_array+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 
 Rscript Scripts/Utils/Cstatic_R2_GlmRegression.R \
-  -f $full_model -m $link -n $null_model -r y -p y -a AUC -t $name
+  -f $full_model \
+  -n $null_model \
+  -m $link \
+  -a y \
+  -i y \
+  -r y \
+  -p y \
+  -k 0.03 \
+  -t $name
 ```
+
+| Option | Description |
+|---|---|
+| `-f` | Full model formula (required) |
+| `-n` | Null model formula |
+| `-m` | Regression link: `gaussian` (continuous) or `binomial` (binary) |
+| `-a` | Calculate AUC and Delta C-statistic with DeLong test (provide any value for yes) |
+| `-i` | Calculate 95% CI for coefficients (provide any value for yes) |
+| `-r` | Output R² metrics: variance R², Nagelkerke R², Liability R² (provide any value for yes) |
+| `-p` | Output Pearson correlation between observed and predicted (provide any value for yes) |
+| `-k` | Population prevalence for liability R² conversion (e.g. `0.03`); if omitted, sample prevalence is used |
 
 **Output metrics:**
 
 | Metric | Description |
 |---|---|
-| AUC (C-statistic) | Overall discrimination |
-| Coefficients | Effect size estimates |
-| Incremental R² | R² gain over null model |
-| Nagelkerke R² | Pseudo R² for logistic regression |
-| Liability R² | R² on liability scale |
+| `AUC_Full` | AUC of full model with 95% CI |
+| `AUC_Null` | AUC of null model with 95% CI |
+| `Delta_AUC` | AUC gain over null model |
+| `Delta_AUC_DeLong_p` | DeLong test p-value for Delta AUC |
+| `Full_Model_Rsq` | Variance-based R² of full model |
+| `Incremental_Model_Rsq` | R² gain over null model |
+| `Nagelkerke_R2_Full` | Nagelkerke R² of full model |
+| `Nagelkerke_R2_Incremental` | Nagelkerke R² gain over null model |
+| `Liability_R2_Full` | Liability R² of full model (binomial only) |
+| `Liability_R2_Incremental` | Liability R² gain over null model (binomial only) |
+| `Pearson_Correlation` | Pearson r between observed and predicted with 95% CI |
 
 The C-statistic from this step is used to **rank PRS from low to high** (`prs_ranking.txt`), which determines the order in which PRS features are added in Step 3.
+
+---
 
 ### Full Step 2 pipeline example
 
@@ -336,24 +370,41 @@ link="binomial"
 full_model="$name~adjNormPRS+age+inferred_gender+genotyping_array+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 null_model="$name~age+inferred_gender+genotyping_array+PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10"
 
-zcat score/sscore.gz | \
-  sed 's/#IID/IID/g' | \
+# Step 1: Merge PRS with phenotype and covariates
+cat score/sscore.txt | \
   python Scripts/Utils/KeyMapReplacer.py -k1 -a NA -p<(cat $pheno) -x | \
-  sed 's/effect_weight_SUM/PRS/g' | \
+
+# Step 2: Select IID, PRS, and top 10 PCs
   python Scripts/Utils/wcut.py -t 'IID,PRS,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10' | \
+
+# Step 3: Residualize PRS by top 10 PCs to remove population stratification
   Rscript Scripts/Utils/Residuals_YS.R \
     -f 'PRS~PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10' -t adjPRS | \
+
+# Step 4: Z-score normalize the residualized PRS
   Rscript Scripts/Utils/Scale.R -c adjPRS -t adjNormPRS | \
+
+# Step 5: Keep IID, raw PRS, residualized PRS, and normalized PRS
   python Scripts/Utils/wcut.py -t 'IID,PRS,adjPRS,adjNormPRS' | \
+
+# Step 6: Merge back with full phenotype and covariate file
   python Scripts/Utils/KeyMapReplacer.py -k1 -a NA -p<(cat $pheno) -x | \
+
+# Step 7: Select columns needed for regression
   python Scripts/Utils/wcut.py \
     -t "$name,adjNormPRS,age,inferred_gender,genotyping_array,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10" | \
+
+# Step 8: Fit full and null models, compute AUC, OR, R²
   Rscript Scripts/Utils/Cstatic_R2_GlmRegression.R \
-    -f $full_model -m $link -n $null_model -r y -p y -a AUC -t $name | \
+    -f $full_model -n $null_model -m $link -a y -i y -r y -p y -k 0.03 -t $name | \
+
+# Step 9: Save output to log file
   tee result/$name.log
 ```
 
-**Utility script reference:**
+---
+
+### Utility script reference
 
 | Script | Purpose | Key options |
 |---|---|---|
@@ -361,8 +412,7 @@ zcat score/sscore.gz | \
 | `wcut.py` | Select columns by name or index | `-t 'col1,col2'` by name; `-f4,3` by position |
 | `Residuals_YS.R` | Regress PRS on covariates, output residuals | `-f` formula; `-t` output column name |
 | `Scale.R` | Z-score normalize a column | `-c` input column; `-t` output column name |
-| `Cstatic_R2_GlmRegression.R` | Compute AUC, OR, incremental R², Nagelkerke R², Liability R² | `-m gaussian` or `binomial`; `-f` full model; `-n` null model |
-
+| `Cstatic_R2_GlmRegression.R` | Compute AUC, Delta C-statistic, R², Nagelkerke R², Liability R² | `-f` full model; `-n` null model; `-m` link function; `-k` population prevalence |
 ---
 
 ## Step 3: XGBoost Integration

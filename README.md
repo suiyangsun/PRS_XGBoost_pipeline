@@ -62,8 +62,8 @@ PRS_cal_pipeline/
 │       ├── WeightedScore_XGB_train_incremental_test.R   # Incremental XGBoost training
 │       └── WeightedScore_XGB_test_score.R               # Apply models to test set
 ├── workflow/
-│   ├── UKB.score.sh                         # Full example run for UK Biobank
-│   ├── MGB.score.sh                         # Full example run for MGB
+│   ├── step1.UKB.score.sh                        # Full step1 PRS Calculation (PLINK) example run for UK Biobank
+│   ├── step1.MGB.score.sh                        # Full step1 PRS Calculation (PLINK) example run for MGB
 │   └── run_xgb.sh                           # XGBoost stage example
 ├── example/
     └── example.weight.txt                   # Example weight file format
@@ -238,7 +238,7 @@ Rscript Scripts/prs/05.combinechr.R \
 
 **Note**: each individual's PRS is the sum of per-chromosome scores. The `--col` option should match the column name produced by Step 4 (`effect_weight_SUM` by default).
 
-Full example scripts provided in `workflow/`.
+Full example scripts provided in [`workflow/UKB.score.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/workflow/step1.UKB.score.sh) and [`workflow/MGB.score.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/workflow/step1.UKB.score.sh).
 
 ---
 
@@ -625,6 +625,8 @@ cat "$test" | Rscript "$script/WeightedScore_XGB_test_score.R" \
 conda deactivate
 echo "Done. Results in $out_dir/"
 ```
+
+Full example scripts provided in [`workflow/run_xgb.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/workflow/run_xgb.sh).
 
 ---
 

@@ -289,6 +289,7 @@ Rscript Scripts/Utils/Residuals.R \
 | `-f` | Regression formula (required) |
 | `-t` | Output column name for residuals (required) |
 
+Residualization is performed using linear regression with an intercept term.
 ---
 
 ### 2.3. Normalize PRS
@@ -419,6 +420,9 @@ cat score/sscore.txt | \
 
 ## Step 3: XGBoost Integration
 
+PRS features are ranked **using the training set only** based on their individual C-statistic to avoid data leakage. This ranking is then fixed and applied to both training and test sets.
+Early stopping is performed using validation folds within cross-validation and does not use the held-out test set.
+
 **Input**: Training set and test set with the following format (whitespace-separated, header required):
 
 ```
@@ -444,6 +448,7 @@ PRS features are added one at a time in order of increasing C-statistic (as rank
 [`Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R)
 
 Random search over XGBoost hyperparameters using stratified k-fold CV, optimizing PR-AUC. Saves the best hyperparameter set to `tuned_params.rds`.
+
 
 ```bash
 cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R \
@@ -490,6 +495,7 @@ cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R \
 [`Scripts/xgb/WeightedScore_XGB_train_incremental_test.R`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/Scripts/xgb/WeightedScore_XGB_train_incremental_test.R)
 
 Using the tuned parameters, trains P-1 models where model i uses the first i PRS features (i = 2 ... P). Per-subset N-fold cross-validation with early stopping determines the optimal number of boosting rounds for each model. Handles class imbalance automatically via `scale_pos_weight`.
+
 
 ```bash
 cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_incremental_test.R \

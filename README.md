@@ -572,7 +572,7 @@ Where `xgb_score_P` corresponds to the model trained on all P PRS features. Repl
 
 ---
 
-## Input / Output Formats
+### Input / Output Formats
 
 | Stage | Input | Output |
 |---|---|---|
@@ -623,7 +623,7 @@ echo "Done. Results in $out_dir/"
 
 ---
 
-## Notes on Reproducibility
+### Notes on Reproducibility
 
 - Use the same `--seed` across all three XGBoost steps for deterministic fold assignments and training.
 - `scale_pos_weight` is auto-set from class counts in the training data and stored in the tuned RDS; it is automatically reused in subsequent steps.

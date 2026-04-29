@@ -1,6 +1,17 @@
 # PRS Analysis Pipeline
 
+This pipeline implements an incremental multi-PRS integration framework using XGBoost to evaluate how combining multiple polygenic risk scores improves disease risk prediction beyond individual PRSs.
+
 From genotype data to locally optimized PRS and performance evaluation.
+
+## Key Idea: Incremental PRS Integration
+
+Unlike standard stacking approaches, this pipeline adds PRS features sequentially based on their individual predictive performance (C-statistic), allowing direct visualization of the incremental contribution of each PRS.
+
+This design enables:
+- transparent interpretation of multi-PRS integration
+- identification of diminishing returns
+- comparison with best single PRS
 
 ![Pipeline Overview](docs/pipeline_overview.png)
 

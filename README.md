@@ -45,6 +45,9 @@ PRS_XGBoost_pipeline/
 ├── README.md
 ├── docs/
 │   └── pipeline_overview.png                # Pipeline diagram
+│   └── 01_PRS_Calculation.md                # Step 1: PRS calculation usage and examples
+│   └── 01_PRS_Calculation.md                # Step 2: PRS processing and performance evaluation
+│   └── 01_PRS_Calculation.md                # Step 3: XGBoost hyperparameter tuning, incremental training, and scoring
 ├── Scripts/
 │   ├── prs/
 │   │   ├── 01.extract.bgen.sh               # Extract SNPs (supports UKB and MGB)
@@ -63,8 +66,8 @@ PRS_XGBoost_pipeline/
 │       ├── WeightedScore_XGB_train_incremental_test.R   # Incremental XGBoost training
 │       └── WeightedScore_XGB_test_score.R               # Apply models to test set
 ├── workflow/
-│   ├── step1.UKB.score.sh                        # Full step1 PRS Calculation (PLINK) example run for UK Biobank
-│   ├── step1.MGB.score.sh                        # Full step1 PRS Calculation (PLINK) example run for MGB
+│   ├── step1.UKB.score.sh                   # Full step1 PRS Calculation (PLINK) example run for UK Biobank
+│   ├── step1.MGB.score.sh                   # Full step1 PRS Calculation (PLINK) example run for MGB
 │   └── run_xgb.sh                           # XGBoost stage example
 ├── example/
     └── example.weight.txt                   # Example weight file format

@@ -94,13 +94,9 @@ install.packages(c("docopt", "data.table", "xgboost", "glmnet"))
 Detailed usage and examples for each step:
 
 - 📄 [Step 1: PRS Calculation](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/docs/01_PRS_Calculation.md)
-- 📄 [Step 2: PRS Processing and Evaluation](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/docs/02_PRS_Processing_Evaluating.md)
+- 📄 [Step 2: PRS Processing and Evaluation](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/docs/02_PRS_Processing_Evaluation.md)
 - 📄 [Step 3: XGBoost Integration](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/docs/03_XGBoost.md)
 
 ---
 
-## Citation
 
-If you use this pipeline, please cite:
-
-> Yang Sui et al. (2026). *[Paper title]*. *Journal*.

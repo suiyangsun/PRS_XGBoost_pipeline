@@ -149,9 +149,9 @@ bash Scripts/prs/01.extract.bgen.sh $plink $bgen $sample $bedfile $out ref-first
 
 ### 2. Set variant ID
 
-`Scripts/prs/02.setID.sh`
+Sets variant IDs to the intermediate format `chr@:#:ref:alt`。
 
-Sets variant IDs to the intermediate format `chr@:#:ref:alt`.
+`Scripts/prs/02.setID.sh`
 
 ```bash
 bash Scripts/prs/02.setID.sh <plink2> <pfile_prefix> <output_prefix>
@@ -169,9 +169,9 @@ bash Scripts/prs/02.setID.sh <plink2> <pfile_prefix> <output_prefix>
 
 ### 3. Update variant ID
 
-`Scripts/prs/03.updateID.sh`
-
 Reformats IDs to `CHR:POS:A1:A2` with A1/A2 **alphabetically ordered**, matching the weight file SNP column.
+
+`Scripts/prs/03.updateID.sh`
 
 ```bash
 bash Scripts/prs/03.updateID.sh <plink2> <pfile_prefix> <update_file> <output_prefix>

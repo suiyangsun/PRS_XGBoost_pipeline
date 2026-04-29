@@ -54,7 +54,7 @@ PRS_cal_pipeline/
 │   ├── Utils/
 │   │   ├── KeyMapReplacer.py                # Join two files on a key column
 │   │   ├── wcut.py                          # Select columns by name or index
-│   │   ├── Residuals_YS.R                      # Regress PRS on PCs, extract residuals
+│   │   ├── Residuals.R                      # Regress PRS on PCs, extract residuals
 │   │   ├── Scale.R                          # Normalize a column (z-score)
 │   │   └── Cstatic_R2_GlmRegression.R       # AUC, OR, incremental R², Nagelkerke R², Liability R²
 │   └── xgb/
@@ -274,7 +274,7 @@ cat score/sscore.txt | \
 Regresses PRS on top PCs and extracts residuals to remove population stratification:
 
 ```bash
-Rscript Scripts/Utils/Residuals_YS.R \
+Rscript Scripts/Utils/Residuals.R \
   -f 'PRS~PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10' \
   -t adjPRS
 ```
@@ -375,7 +375,7 @@ cat score/sscore.txt | \
   python Scripts/Utils/wcut.py -t 'IID,PRS,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10' | \
 
 # Step 3: Residualize PRS by top 10 PCs to remove population stratification
-  Rscript Scripts/Utils/Residuals_YS.R \
+  Rscript Scripts/Utils/Residuals.R \
     -f 'PRS~PC1+PC2+PC3+PC4+PC5+PC6+PC7+PC8+PC9+PC10' -t adjPRS | \
 
 # Step 4: Z-score normalize the residualized PRS
@@ -407,7 +407,7 @@ cat score/sscore.txt | \
 |---|---|---|
 | `KeyMapReplacer.py` | Left-join two files on a key column | `-k1` key col; `-p` second file; `-a NA` fill missing |
 | `wcut.py` | Select columns by name or index | `-t 'col1,col2'` by name; `-f4,3` by position |
-| `Residuals_YS.R` | Regress PRS on covariates, output residuals | `-f` formula; `-t` output column name |
+| `Residuals.R` | Regress PRS on covariates, output residuals | `-f` formula; `-t` output column name |
 | `Scale.R` | Z-score normalize a column | `-c` input column; `-t` output column name |
 | `Cstatic_R2_GlmRegression.R` | Compute AUC, Delta C-statistic, R², Nagelkerke R², Liability R² | `-f` full model; `-n` null model; `-m` link function; `-k` population prevalence |
 ---

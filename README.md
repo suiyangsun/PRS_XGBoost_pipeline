@@ -1,4 +1,4 @@
-<img width="104" height="17" alt="image" src="https://github.com/user-attachments/assets/181a975c-99af-4478-9b9c-49d51ad537cd" /># PRS Analysis Pipeline
+# PRS Analysis Pipeline
 
 From genotype data to locally optimized PRS and performance evaluation.
 

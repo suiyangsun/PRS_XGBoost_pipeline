@@ -219,9 +219,27 @@ bash Scripts/prs/04.calculate.score.sh <plink2> <pfile_prefix> <score_file> <out
 
 ### 5. Combine chromosomes
 
-`Scripts/prs/05.combinechr.R`
+Sums PRS across all chromosomes. First concatenate all per-chromosome `.sscore` files, then pass the combined file to this script.
 
-Merges per-chromosome `.sscore.gz` files into a single genome-wide PRS file per individual.
+`Scripts/prs/05.combinechr.R`
+```bash
+# Step 5.1: concatenate all per-chromosome score files
+cat chr*.sscore.gz > all_chr.sscore.gz
+
+# Step 5.2: sum across chromosomes
+Rscript Scripts/prs/05.combinechr.R \
+  -i all_chr.sscore.gz \
+  -o output/combined_PRS.txt \
+  --col effect_weight_SUM
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `-i` / `--input` | Concatenated per-chromosome `.sscore` file (required) | — |
+| `-o` / `--output` | Output file path (required) | — |
+| `--col` | Column name to aggregate | `effect_weight_SUM` |
+
+**Note**: each individual's PRS is the sum of per-chromosome scores. The `--col` option should match the column name produced by Step 4 (`effect_weight_SUM` by default).
 
 ---
 

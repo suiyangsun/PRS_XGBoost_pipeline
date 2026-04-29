@@ -86,7 +86,7 @@ PRS_XGBoost_pipeline/
 ### R packages
 
 ```r
-install.packages(c("docopt", "data.table", "xgboost", "glmnet"))
+install.packages(c("docopt", "data.table", "xgboost", "glmnet", "pROC", "rsq", "pacman"))
 ```
 
 ## Documentation

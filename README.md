@@ -241,6 +241,8 @@ Rscript Scripts/prs/05.combinechr.R \
 
 **Note**: each individual's PRS is the sum of per-chromosome scores. The `--col` option should match the column name produced by Step 4 (`effect_weight_SUM` by default).
 
+Full example scripts provided in `workflow/`.
+
 ---
 
 ## Step 2: PRS Processing and Evaluation
@@ -415,29 +417,27 @@ cat score/sscore.txt | \
 
 ## Step 3: XGBoost Integration
 
-**Input**: Training set and test set (ranked PRSs & phenotype), with PRS ranked low → high by C-statistic from Step 2
+**Input**: Training set and test set with the following format (whitespace-separated, header required):
+
+```
+IID                           Has_cad   PRS_1           PRS_2           PRS_3   ...
+SAMPLE1  0         0.507311823784729  -1.3667209634        ...
+SAMPLE2  1         1.515846731698480   0.841451279700       ...
+```
+
+> **Note**: the first column must be `IID`, the second column must be the outcome (e.g. `Has_cad`), and PRS features start from the third column onward. The column order of PRS features determines the order in which features are added during incremental training — order your columns from lowest to highest C-statistic (as ranked in Step 2).
 
 **Output**: Final model (`models.rds`) and PRS scores for train and test sets
 
-The XGBoost stage learns the optimal nonlinear combination of multiple PRS features, adding them sequentially from lowest to highest C-statistic.
-
-**Input table format** (whitespace-separated, header required, PRS columns ordered low → high C-statistic):
-
-```
-IID       PRS_1    PRS_2    PRS_3    CAD
-SAMPLE1   0.412   -0.031    1.203    1
-SAMPLE2  -0.887    0.221    0.004    0
-```
-
 ---
 
-### 1. Add PRSs sequentially (low → high)
+### 3.1. Add PRSs sequentially (low → high)
 
 PRS features are added one at a time in order of increasing C-statistic (as ranked in Step 2). Model i uses the first i PRS features (i = 2 ... P), producing one trained model per feature subset.
 
 ---
 
-### 2. Hyperparameter Tuning
+### 3.2. Hyperparameter Tuning
 
 `Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R`
 
@@ -483,7 +483,7 @@ cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R \
 
 ---
 
-### 3. Train XGBoost model
+### 3.3. Train XGBoost model
 
 `Scripts/xgb/WeightedScore_XGB_train_incremental_test.R`
 
@@ -517,7 +517,7 @@ cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_incremental_test.R \
 
 ---
 
-### 4. Test Set Scoring
+### 3.4. Test Set Scoring
 
 `Scripts/xgb/WeightedScore_XGB_test_score.R`
 
@@ -540,25 +540,53 @@ cat $test | Rscript Scripts/xgb/WeightedScore_XGB_test_score.R \
 
 ---
 
+### Tips
+
+**Running on the full dataset:**
+
+If you want to apply the trained model to the full dataset (not just the test set), pass the full dataset to the incremental training script directly:
+
+```bash
+cat $full | Rscript Scripts/xgb/WeightedScore_XGB_train_incremental_test.R \
+  --tuned "$out_dir/tuned_params.rds" \
+  -o Has_cad \
+  --seed 123 \
+  --nfold 5 \
+  --nrounds 2000 \
+  --early-stop 30 \
+  --nthread 10 \
+  --save-model "$out_dir/full.models.rds" \
+  > "$out_dir/xgb_scores.full.txt" \
+  2> "$out_dir/xgb_full.log"
+```
+
+**Using all PRS features in a single model (no incremental):**
+
+The incremental script always trains models from 2 features up to P features. If you only want the final model using all PRS features, simply extract the last score column from the output:
+
+```bash
+cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_incremental_test.R \
+  --tuned "$out_dir/tuned_params.rds" \
+  -o Has_cad ... | \
+  python Scripts/Utils/wcut.py -t 'IID,outcome,xgb_score_P'
+```
+
+Where `xgb_score_P` corresponds to the model trained on all P PRS features. Replace `P` with the actual number of PRS features in your dataset (e.g. `xgb_score_10` if you have 10 PRS features).
+
+---
+
 ## Input / Output Formats
 
 | Stage | Input | Output |
 |---|---|---|
-| `01.extract.bgen.sh` | BGEN + sample + extract file | PLINK2 pgen/pvar/psam |
-| `04.calculate.score.sh` | PLINK2 pgen + weight file | Per-chr `.sscore.gz` |
-| `05.combinechr.R` | Per-chr `.sscore.gz` files | Single combined score table |
-| `Residuals_YS.R` | IID + PRS + PC columns | Same table + residual column |
-| `Scale.R` | Table with target column | Same table + normalized column |
-| `Cstatic_R2_GlmRegression.R` | Phenotype + PRS + covariates | AUC / OR / R² summary + `prs_ranking.txt` |
 | XGBoost tuning | IID + ranked PRS + outcome | `tuned_params.rds` |
-| XGBoost training | IID + ranked PRS + outcome | `models.rds` + train scores |
-| XGBoost scoring | IID + ranked PRS (+ outcome) | Test scores per feature subset |
+| XGBoost training | IID +  outcome + ranked PRS  | `models.rds` + train scores |
+| XGBoost scoring | IID + outcome + ranked PRS | Test scores per feature subset |
 
 ---
 
-## Example End-to-End Runs
+### Full Step 3 pipeline example:
 
-Full example scripts for UK Biobank and MGB GSA-53K are provided in `workflow/`. A minimal XGBoost-only run:
 
 ```bash
 #!/usr/bin/env bash

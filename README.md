@@ -167,7 +167,7 @@ bash Scripts/prs/02.setID.sh <plink2> <pfile_prefix> <output_prefix>
 
 Reformats IDs to `CHR:POS:A1:A2` with A1/A2 **alphabetically ordered**, matching the weight file SNP column.
 
-`Scripts/prs/03.updateID.sh`
+[`Scripts/prs/03.updateID.sh`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/prs/03.updateID.sh)
 
 ```bash
 bash Scripts/prs/03.updateID.sh <plink2> <pfile_prefix> <update_file> <output_prefix>
@@ -188,7 +188,7 @@ bash Scripts/prs/03.updateID.sh <plink2> <pfile_prefix> <update_file> <output_pr
 
 Calculates PRS per chromosome using plink2 `--score`. Uses `scoresums` (sum) rather than the plink2 default (average) — see note below.
 
-`Scripts/prs/04.calculate.score.sh`
+[`Scripts/prs/04.calculate.score.sh`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/prs/04.calculate.score.sh)
 
 ```bash
 bash Scripts/prs/04.calculate.score.sh <plink2> <pfile_prefix> <score_file> <output_prefix> [options]
@@ -217,7 +217,8 @@ bash Scripts/prs/04.calculate.score.sh <plink2> <pfile_prefix> <score_file> <out
 
 Sums PRS across all chromosomes. First concatenate all per-chromosome `.sscore` files, then pass the combined file to this script.
 
-`Scripts/prs/05.combinechr.R`
+[`Scripts/prs/05.combinechr.R`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/prs/05.combinechr.R)
+
 ```bash
 # Step 1.5.1: concatenate all per-chromosome score files
 cat chr*.sscore.gz > all_chr.sscore.gz
@@ -260,6 +261,9 @@ SAMPLE2    0         62    F                 GSA               -0.008    0.011  
 
 ### 2.1. Merge PRS with phenotype
 
+[`Scripts/Utils/KeyMapReplacer.py`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/Utils/KeyMapReplacer.py)
+[`Scripts/Utils/wcut.py`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/Utils/wcut.py)
+
 ```bash
 cat score/sscore.txt | \
   python Scripts/Utils/KeyMapReplacer.py -k1 -a NA -p<(cat $pheno) -x | \
@@ -271,6 +275,8 @@ cat score/sscore.txt | \
 ### 2.2. Residualize PRS by PCs
 
 Regresses PRS on top PCs and extracts residuals to remove population stratification:
+
+[`Scripts/Utils/Residuals.R`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/Utils/Residuals.R)
 
 ```bash
 Rscript Scripts/Utils/Residuals.R \
@@ -287,7 +293,7 @@ Rscript Scripts/Utils/Residuals.R \
 
 ### 2.3. Normalize PRS
 
-`Scripts/Utils/Scale.R`
+[`Scripts/Utils/Scale.R`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/Utils/Scale.R)
 
 Z-score normalizes the residualized PRS:
 
@@ -304,7 +310,7 @@ Rscript Scripts/Utils/Scale.R -c adjPRS -t adjNormPRS
 
 ### 2.4. Evaluate PRS performance
 
-`Scripts/Utils/Cstatic_R2_GlmRegression.R`
+[`Scripts/Utils/Cstatic_R2_GlmRegression.R`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/Utils/Cstatic_R2_GlmRegression.R)
 
 Fits full and null models and computes performance metrics including AUC, Delta C-statistic (with DeLong test), Nagelkerke R², and Liability R²:
 
@@ -435,7 +441,7 @@ PRS features are added one at a time in order of increasing C-statistic (as rank
 
 ### 3.2. Hyperparameter Tuning
 
-`Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R`
+[`Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R)
 
 Random search over XGBoost hyperparameters using stratified k-fold CV, optimizing PR-AUC. Saves the best hyperparameter set to `tuned_params.rds`.
 
@@ -481,7 +487,7 @@ cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_Tuned_IB_nthread.R \
 
 ### 3.3. Train XGBoost model
 
-`Scripts/xgb/WeightedScore_XGB_train_incremental_test.R`
+[`Scripts/xgb/WeightedScore_XGB_train_incremental_test.R`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/Scripts/xgb/WeightedScore_XGB_train_incremental_test.R)
 
 Using the tuned parameters, trains P-1 models where model i uses the first i PRS features (i = 2 ... P). Per-subset N-fold cross-validation with early stopping determines the optimal number of boosting rounds for each model. Handles class imbalance automatically via `scale_pos_weight`.
 
@@ -515,7 +521,7 @@ cat $train | Rscript Scripts/xgb/WeightedScore_XGB_train_incremental_test.R \
 
 ### 3.4. Test Set Scoring
 
-`Scripts/xgb/WeightedScore_XGB_test_score.R`
+[`Scripts/xgb/WeightedScore_XGB_test_score.R`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/Scripts/xgb/WeightedScore_XGB_test_score.R)
 
 Applies each saved incremental model to the held-out test set.
 

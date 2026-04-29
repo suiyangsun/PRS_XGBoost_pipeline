@@ -114,7 +114,7 @@ SNP             Chr   Pos       effect_allele   other_allele   effect_weight
 
 Extracts only the SNPs present in the weight file from the full genotype data, dramatically reducing compute time especially when calculating multiple scores from the same genotype data.
 
-[`Scripts/prs/01.extract.bgen.sh`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/prs/01.extract.bgen.sh)
+[`Scripts/prs/01.extract.bgen.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/Scripts/prs/01.extract.bgen.sh)
 
 A single script handles both ref-first and ref-last format via the optional `[ref]` argument:
 
@@ -147,7 +147,7 @@ bash Scripts/prs/01.extract.bgen.sh $plink $bgen $sample $bedfile $out ref-first
 
 Sets variant IDs to the intermediate format `chr@:#:ref:alt`。
 
-[`Scripts/prs/02.setID.sh`](https://github.com/suiyangsun/PRS_cal_pipeline/blob/main/Scripts/prs/02.setID.sh)
+[`Scripts/prs/02.setID.sh`](https://github.com/suiyangsun/PRS_XGBoost_pipeline/blob/main/Scripts/prs/02.setID.sh)
 
 ```bash
 bash Scripts/prs/02.setID.sh <plink2> <pfile_prefix> <output_prefix>

@@ -153,6 +153,18 @@ bash Scripts/prs/01.extract.bgen.sh $plink $bgen $sample $bedfile $out ref-first
 
 Sets variant IDs to the intermediate format `chr@:#:ref:alt`.
 
+```bash
+bash Scripts/prs/02.setID.sh <plink2> <pfile_prefix> <output_prefix>
+```
+
+| Argument | Description |
+|---|---|
+| `<plink2>` | Path to plink2 executable |
+| `<pfile_prefix>` | Input PLINK2 file prefix `(expects .pgen, .pvar, .psam)` |
+| `<output_prefix>` | Output prefix |
+
+**Note**: the script checks that all three PLINK2 input files `(.pgen, .pvar, .psam)` exist before running and exits with an error if any are missing.
+
 ---
 
 ### 3. Update variant ID
